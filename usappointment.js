@@ -15,7 +15,7 @@ const axios = require('axios');
     const groupAppointment = args.g;
     const region = args.r;
     //#endregion
-	
+
     //#region Helper functions
     async function waitForSelectors(selectors, frame, options) {
       for (const selector of selectors) {
@@ -140,7 +140,7 @@ const axios = require('axios');
       //#endregion
 
       //#region Logic
-	  
+
       // Set the viewport to avoid elements changing places 
       {
           const targetPage = page;
@@ -178,7 +178,7 @@ const axios = require('axios');
             }, usernameInput);
           }
       }
-	  
+
       // Hit tab to go to the password input
       {
           const targetPage = page;
@@ -188,12 +188,12 @@ const axios = require('axios');
           const targetPage = page;
           await targetPage.keyboard.up("Tab");
       }
-	  
+
       // Type password
       {
           const targetPage = page;
           const element = await waitForSelectors([["aria/Password"],["#user_password"]], targetPage, { timeout, visible: true });
-		  await scrollIntoViewIfNeeded(element, timeout);
+          await scrollIntoViewIfNeeded(element, timeout);
           const type = await element.evaluate(el => el.type);
           if (["textarea","select-one","text","url","tel","search","password","number","email"].includes(type)) {
             await element.type(passwordInput);
@@ -206,7 +206,7 @@ const axios = require('axios');
             }, passwordInput);
           }
       }
-	  
+
       // Tick the checkbox for agreement
       {
           const targetPage = page;
@@ -227,7 +227,7 @@ const axios = require('axios');
       // We are logged in now. Check available dates from the API
       {
           const targetPage = page;
-	  await targetPage.setExtraHTTPHeaders({'Accept': 'application/json, text/javascript, */*; q=0.01', 'X-Requested-With': 'XMLHttpRequest'});
+          await targetPage.setExtraHTTPHeaders({'Accept': 'application/json, text/javascript, */*; q=0.01', 'X-Requested-With': 'XMLHttpRequest'});
           const response = await targetPage.goto('https://ais.usvisa-info.com/en-' + region + '/niv/schedule/' + appointmentId + '/appointment/days/' + consularId + '.json?appointments[expedite]=false');
 
           const availableDates = JSON.parse(await response.text());
