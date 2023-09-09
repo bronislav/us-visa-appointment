@@ -129,8 +129,7 @@ const axios = require('axios');
   async function runLogic() {
     //#region Init puppeteer
     const browser = await puppeteer.launch();
-    // Comment above line and uncomment following line to see puppeteer in action
-    //const browser = await puppeteer.launch({ headless: false });
+    // const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     const timeout = 5000;
     const navigationTimeout = 60000;
@@ -192,7 +191,7 @@ const axios = require('axios');
     // Type password
     {
       const targetPage = page;
-      const element = await waitForSelectors([["aria/Password"], ["#user_password"]], targetPage, { timeout, visible: true });
+      const element = await waitForSelectors([["aria/Password"], ["input#user_password"]], targetPage, { timeout, visible: true });
       await scrollIntoViewIfNeeded(element, timeout);
       const type = await element.evaluate(el => el.type);
       if (["textarea", "select-one", "text", "url", "tel", "search", "password", "number", "email"].includes(type)) {
@@ -292,14 +291,31 @@ const axios = require('axios');
         try {
           const element = await waitForSelectors([["aria/25[role=\"link\"]"], ["#ui-datepicker-div > div.ui-datepicker-group.ui-datepicker-group > table > tbody > tr > td.undefined > a"]], targetPage, { timeout: smallTimeout, visible: true });
           await scrollIntoViewIfNeeded(element, timeout);
-          await page.click('#ui-datepicker-div > div.ui-datepicker-group.ui-datepicker-group > table > tbody > tr > td.undefined > a');
-          await sleep(500);
-          break;
+
+          const date = await page.evaluate(() => {
+            const el = document.querySelector('#ui-datepicker-div > div.ui-datepicker-group.ui-datepicker-group > table > tbody > tr > td.undefined > a');
+            const day = parseInt(el.innerText);
+            const parent = el.parentElement
+            const month = parseInt(parent.getAttribute('data-month')) + 1;
+            const year = parseInt(parent.getAttribute('data-year'));
+
+            return { day, month, year }
+          });
+
+          const newDate = new Date(date.year, date.month, date.day);
+          if (newDate <= currentDate) {
+            await element.click();
+            await sleep(500);
+            break;
+          } else {
+            notify(`The first available date is ${newDate}. It is after the current date ${currentDate}.`);
+            await browser.close();
+            return false;
+          }
         } catch (err) {
           {
             const targetPage = page;
             const element = await waitForSelectors([["aria/Next", "aria/[role=\"generic\"]"], ["#ui-datepicker-div > div.ui-datepicker-group.ui-datepicker-group-last > div > a > span"]], targetPage, { timeout, visible: true });
-
             await scrollIntoViewIfNeeded(element, timeout);
             await element.click({ offset: { x: 4, y: 9.03125 } });
           }
