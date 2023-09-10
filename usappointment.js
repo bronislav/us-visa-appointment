@@ -296,21 +296,21 @@ const axios = require('axios');
             const el = document.querySelector('#ui-datepicker-div > div.ui-datepicker-group.ui-datepicker-group > table > tbody > tr > td.undefined > a');
             const day = parseInt(el.innerText);
             const parent = el.parentElement
-            const month = parseInt(parent.getAttribute('data-month')) + 1;
+            const month = parseInt(parent.getAttribute('data-month'));
             const year = parseInt(parent.getAttribute('data-year'));
 
             return { day, month, year }
           });
 
           const newDate = new Date(date.year, date.month, date.day);
-          if (newDate <= currentDate) {
+          if (newDate > currentDate) {
+            notify(`The first available date ${newDate.toISOString().slice(0, 10)} is after threshold date ${currentDate.toISOString().slice(0, 10)}.`);
+            await browser.close();
+            return false;
+          } else {
             await element.click();
             await sleep(500);
             break;
-          } else {
-            notify(`The first available date is ${newDate}. It is after the current date ${currentDate}.`);
-            await browser.close();
-            return false;
           }
         } catch (err) {
           {
