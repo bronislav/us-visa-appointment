@@ -187,8 +187,8 @@ const MAX_DATE_PICKER_LOOKUP = 12 * 4;
       // Type password
       {
           const targetPage = page;
-          const element = await waitForSelectors([["aria/Password"],["#user_password"]], targetPage, { timeout, visible: true });
-		  await scrollIntoViewIfNeeded(element, timeout);
+          const element = await waitForSelectors([["#user_password"]], targetPage, { timeout, visible: true });
+          await scrollIntoViewIfNeeded(element, timeout);
           const type = await element.evaluate(el => el.type);
           if (["textarea","select-one","text","url","tel","search","password","number","email"].includes(type)) {
             await element.type(passwordInput);
@@ -367,7 +367,7 @@ const MAX_DATE_PICKER_LOOKUP = 12 * 4;
 
     while (true){
       // Change value of headless to "false" to see puppeteer in action
-      const browser = await puppeteer.launch({ headless: true });
+      const browser = await puppeteer.launch({ headless: false });
 
       try{
         const result = await runLogic(browser);
